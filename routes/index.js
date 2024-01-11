@@ -4,6 +4,7 @@ var router = express.Router();
 const categoryController = require('../controllers').category;
 const companyController = require('../controllers').company;
 const wasteController = require('../controllers').waste;
+const pairingController = require('../controllers').pairing;
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -30,5 +31,12 @@ router.get('/api/waste/:id', wasteController.getById);
 router.post('/api/waste', wasteController.add);
 router.put('/api/waste/:id', wasteController.update);
 router.delete('/api/waste/:id', wasteController.delete);
+
+// ROUTE PAIRING
+router.get('/api/pairing', pairingController.list);
+router.get('/api/pairing/:id', pairingController.getById);
+router.post('/api/pairing', pairingController.add);
+// router.put('/api/pairing/:id', pairingController.update);
+// router.delete('/api/pairing/:id', pairingController.delete);
 
 module.exports = router;

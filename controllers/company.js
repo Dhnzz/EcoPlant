@@ -1,4 +1,5 @@
 const Company = require("../models").Company;
+const Waste = require("../models").Waste;
 const Validator = require("fastest-validator");
 const v = new Validator();
 
@@ -16,7 +17,16 @@ module.exports = {
 
   getById(req, res) {
     return Company.findByPk(req.params.id, {
-      include: [],
+      include: [
+        {
+          model: Waste,
+          as: 'pair',
+          include: [{
+            model: Company,
+            as: 'company'
+          }]
+        }
+      ],
     })
       .then((company) => {
         if (!company) {
@@ -27,20 +37,31 @@ module.exports = {
         return res.status(200).send(company);
       })
       .catch((error) => {
-        res.status(400).send(error);
+        console.log(error);
       });
   },
 
   add(req, res) {
     const schema = {
       company_name: "string",
+      role: {
+        type: "string",
+        // enum: ["0", "1"],
+      },
     };
     const validate = v.validate(req.body, schema);
     if (validate.length) {
       return res.status(400).json(validate);
     }
-    return Company.create({
-      company_name: req.body.company_name,
+    return Company.findOrCreate({
+      where: {
+        company_name: req.body.company_name,
+        // role: req.body.role,
+      },
+      default:{
+        company_name: req.body.company_name,
+        // role: req.body.role,
+      }
     })
       .then((company) => res.status(200).send(company))
       .catch((error) => {
@@ -51,6 +72,11 @@ module.exports = {
   update(req, res) {
     const schema = {
       company_name: "string",
+      // role: {
+      //   type: "string",
+      //   enum: ["0", "1"],
+      //   optional: true
+      // },
     };
     const validate = v.validate(req.body, schema);
     if (validate.length) {
@@ -66,6 +92,7 @@ module.exports = {
         return company
           .update({
             company_name: req.body.company_name || company.company_name,
+            // role: company.role
           })
           .then(() => res.status(200).send(company))
           .catch((error) => res.status(400).send(error));

@@ -18,6 +18,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "category_id",
         as: "category",
       });
+
+      Waste.belongsToMany(models.Company, {
+        through: 'Pairing',
+        as: 'pair',
+        foreignKey: 'waste_id'
+      });
     }
   }
   Waste.init(

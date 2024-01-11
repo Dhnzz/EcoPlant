@@ -1,56 +1,45 @@
-const Waste = require("../models").Waste;
+const Pairing = require("../models").Pairing;
 const Company = require("../models").Company;
-const Category = require("../models").Category;
+const Waste = require("../models").Waste;
 const Validator = require("fastest-validator");
 const v = new Validator();
 
 module.exports = {
   list(req, res) {
-    return Waste.findAll({
+    return Pairing.findAll({
       include: [],
       order: [["createdAt", "ASC"]],
     })
-      .then((waste) => res.status(200).send(waste))
+      .then((pairing) => res.status(200).send(pairing))
       .catch((error) => {
         res.status(400).send(error);
       });
   },
 
   getById(req, res) {
-    return Waste.findByPk(req.params.id, {
+    return Pairing.findByPk(req.params.id, {
       include: [
-        {
-          model: Company,
-          as: "company",
-        },
-        {
-          model: Category,
-          as: "category",
-        },
         {
           model: Company,
           as: "pair"
         }
       ],
     })
-      .then((waste) => {
-        if (!waste) {
+      .then((pairing) => {
+        if (!pairing) {
           return res.status(404).send({
-            message: "Waste not found",
+            message: "Pairing Not Found",
           });
         }
-        return res.status(200).send(waste);
+        return res.status(200).send(pairing);
       })
-      .catch((error) => {
-        console.log(error)
-      })
+      .catch((error) => console.log(error));
   },
 
   add(req, res) {
     const schema = {
-      waste_name: "string",
-      company_id: "number|nullable:false",
-      category_id: "number|nullable: false",
+      buyer_id: "number|nullable:false",
+      waste_id: "number|nullable: false",
     };
 
     const validate = v.validate(req.body, schema);
@@ -58,7 +47,7 @@ module.exports = {
       return res.status(400).json(validate);
     }
 
-    return Company.findByPk(req.body.company_id)
+    return Company.findByPk(req.body.buyer_id)
       .then((company) => {
         if (!company) {
           return res.status(404).send({
@@ -66,19 +55,18 @@ module.exports = {
           });
         }
 
-        return Category.findByPk(req.body.category_id)
+        return Waste.findByPk(req.body.waste_id)
           .then((category) => {
             if (!category) {
               return res.status(404).send({
-                message: "Category not found",
+                message: "Waste not found",
               });
             }
-            return Waste.create({
-              waste_name: req.body.waste_name,
-              company_id: req.body.company_id,
-              category_id: req.body.category_id,
+            return Pairing.create({
+              buyer_id: req.body.buyer_id,
+              waste_id: req.body.waste_id,
             })
-              .then((waste) => res.status(200).send(waste))
+              .then((pairing) => res.status(200).send(pairing))
               .catch((error) => {
                 res.status(400).send(error);
               });
@@ -94,44 +82,44 @@ module.exports = {
 
   update(req, res) {
     const schema = {
-      waste_name: "string|optional:true",
+      pairing_name: "string|optional:true",
       company_id: "number|optional:true",
-      category_id: "number|optional:true"
+      category_id: "number|optional:true",
     };
     const validate = v.validate(req.body, schema);
     if (validate.length) {
       return res.status(400).json(validate);
     }
-    return Waste.findByPk(req.params.id)
-      .then((waste) => {
-        if (!waste) {
+    return Pairing.findByPk(req.params.id)
+      .then((pairing) => {
+        if (!pairing) {
           return res.status(404).send({
-            message: "Waste not found",
+            message: "Pairing not found",
           });
         }
-        return waste
+        return pairing
           .update({
-            waste_name: req.body.waste_name || waste.waste_name,
-            company_id: req.body.company_id || waste.company_id,
-            category_id: req.body.category_id || waste.category_id
+            pairing_name: req.body.pairing_name || pairing.pairing_name,
+            company_id: req.body.company_id || pairing.company_id,
+            category_id: req.body.category_id || pairing.category_id,
           })
-          .then(() => res.status(200).send(waste))
+          .then(() => res.status(200).send(pairing))
           .catch((error) => res.status(400).send(error));
       })
       .catch((error) => res.status(400).send(error));
   },
 
   delete(req, res) {
-    return Waste.findByPk(req.params.id)
-      .then((waste) => {
-        if (!waste) {
+    return Pairing.findByPk(req.params.id)
+      .then((pairing) => {
+        if (!pairing) {
           return res.status(404).send({
-            message: "Waste not found",
+            message: "Pairing not found",
           });
         }
-        return waste
+        return pairing
           .destroy()
-          .then(() => res.status(200).send(waste))
+          .then(() => res.status(200).send(pairing))
           .catch((error) => res.status(400).send(error));
       })
       .catch((error) => res.status(400).send(error));

@@ -13,11 +13,18 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "company_id",
         as: "company",
       });
+
+      Company.belongsToMany(models.Waste, {
+        through: 'Pairing',
+        as: 'pair',
+        foreignKey: 'buyer_id'
+      });
     }
   }
   Company.init(
     {
       company_name: DataTypes.STRING,
+      // role: DataTypes.ENUM(0,1)
     },
     {
       sequelize,

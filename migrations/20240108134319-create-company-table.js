@@ -14,6 +14,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      // role:{
+      //   type: Sequelize.ENUM("0","1"),
+      //   allowNull: false
+      // },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false
